@@ -1,0 +1,1415 @@
+<title>Kortex AI Initiative</title>
+
+<style>
+  :root {
+    --ground:      #F5F7F6;
+    --surface:     #FFFFFF;
+    --surface-2:   #EDF1F0;
+    --ink:         #131A18;
+    --ink-2:       #33403D;
+    --muted:       #5B6764;
+    --faint:       #8A9793;
+    --accent:      #0E6B60;
+    --accent-soft: #E1EDEB;
+    --rule:        #D9E0DE;
+    --rule-soft:   #E8EDEC;
+    --ok:          #1F6B47;
+    --ok-bg:       #E2EFE8;
+    --part:        #85601A;
+    --part-bg:     #F4EBD8;
+    --gap:         #A33C22;
+    --gap-bg:      #F6E4DE;
+
+    --sans: ui-sans-serif, system-ui, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", ui-monospace, "Roboto Mono", monospace;
+
+    --measure: 68ch;
+    --pad: clamp(20px, 5vw, 64px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0D1312;
+      --surface:     #141B1A;
+      --surface-2:   #1A2322;
+      --ink:         #E4EAE8;
+      --ink-2:       #C3CDCA;
+      --muted:       #93A19D;
+      --faint:       #6E7C79;
+      --accent:      #45AC9C;
+      --accent-soft: #12302C;
+      --rule:        #253130;
+      --rule-soft:   #1C2524;
+      --ok:          #58AE81;
+      --ok-bg:       #163023;
+      --part:        #C79F44;
+      --part-bg:     #32280F;
+      --gap:         #DC7A5D;
+      --gap-bg:      #3A211A;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #0D1312;
+    --surface:     #141B1A;
+    --surface-2:   #1A2322;
+    --ink:         #E4EAE8;
+    --ink-2:       #C3CDCA;
+    --muted:       #93A19D;
+    --faint:       #6E7C79;
+    --accent:      #45AC9C;
+    --accent-soft: #12302C;
+    --rule:        #253130;
+    --rule-soft:   #1C2524;
+    --ok:          #58AE81;
+    --ok-bg:       #163023;
+    --part:        #C79F44;
+    --part-bg:     #32280F;
+    --gap:         #DC7A5D;
+    --gap-bg:      #3A211A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0 var(--pad) 96px;
+  }
+
+  .doc { max-width: 1080px; margin: 0 auto; }
+
+  /* ---------- front matter ---------- */
+
+  .masthead {
+    padding: clamp(44px, 8vw, 88px) 0 32px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 20px;
+  }
+
+  h1 {
+    font-size: clamp(38px, 6.5vw, 60px);
+    line-height: 1.03;
+    letter-spacing: -0.026em;
+    font-weight: 660;
+    text-wrap: balance;
+    margin: 0 0 18px;
+  }
+
+  .standfirst {
+    font-size: clamp(17px, 2.1vw, 20px);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: var(--measure);
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .frontmatter {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+    gap: 4px 28px;
+    padding: 22px 0 0;
+    margin: 28px 0 0;
+    border-top: 1px solid var(--rule);
+  }
+  .fm-item { padding: 10px 0; }
+  .fm-key {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    display: block;
+    margin-bottom: 3px;
+  }
+  .fm-val { font-size: 14px; color: var(--ink); font-weight: 520; }
+
+  /* ---------- contents ---------- */
+
+  nav.toc {
+    margin: 44px 0 0;
+    padding: 24px 28px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+  }
+  nav.toc p {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 14px;
+  }
+  nav.toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2px 32px;
+    counter-reset: toc;
+  }
+  nav.toc li { counter-increment: toc; }
+  nav.toc a {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 14.5px;
+    border-bottom: 1px solid transparent;
+  }
+  nav.toc a::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    padding-top: 3px;
+    flex: none;
+  }
+  nav.toc a:hover { color: var(--accent); }
+  nav.toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ---------- sections ---------- */
+
+  section { margin: 0; padding: 56px 0 0; scroll-margin-top: 24px; }
+
+  h2 {
+    font-size: clamp(23px, 3.1vw, 30px);
+    letter-spacing: -0.019em;
+    font-weight: 640;
+    line-height: 1.18;
+    text-wrap: balance;
+    margin: 0 0 8px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  h2 .num {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    flex: none;
+  }
+
+  h3 {
+    font-size: 16.5px;
+    font-weight: 640;
+    letter-spacing: -0.006em;
+    margin: 34px 0 10px;
+    color: var(--ink);
+  }
+
+  p, ul, ol { max-width: var(--measure); }
+  p { margin: 0 0 16px; color: var(--ink-2); text-wrap: pretty; }
+  section > p:first-of-type { margin-top: 20px; }
+
+  ul, ol { margin: 0 0 16px; padding-left: 20px; color: var(--ink-2); }
+  li { margin-bottom: 7px; padding-left: 3px; }
+  li::marker { color: var(--faint); }
+
+  strong { font-weight: 620; color: var(--ink); }
+  a { color: var(--accent); text-underline-offset: 2px; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.855em;
+    background: var(--surface-2);
+    padding: 1.5px 5px;
+    border-radius: 2px;
+    color: var(--ink);
+  }
+
+  /* ---------- callout ---------- */
+
+  .note {
+    max-width: var(--measure);
+    margin: 22px 0;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 3px 3px 0;
+  }
+  .note.alert { border-left-color: var(--gap); }
+  .note.alert .label { color: var(--gap); }
+  .note p { margin: 0; font-size: 14.5px; }
+  .note p + p { margin-top: 10px; }
+  .note .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  /* ---------- tables ---------- */
+
+  .tw {
+    overflow-x: auto;
+    margin: 22px 0 26px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 620px;
+  }
+  th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  tr:last-child td { border-bottom: none; }
+  td.id, td.num {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  td.k { color: var(--ink); font-weight: 560; }
+  td.tight { white-space: nowrap; }
+  tr.excluded td { background: var(--accent-soft); }
+
+  /* ---------- chips ---------- */
+
+  .chip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .c-ok   { background: var(--ok-bg);   color: var(--ok); }
+  .c-part { background: var(--part-bg); color: var(--part); }
+  .c-gap  { background: var(--gap-bg);  color: var(--gap); }
+  .c-plan { background: var(--surface-2); color: var(--muted); }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 30px 0 32px;
+    padding: 26px 26px 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    overflow-x: auto;
+  }
+  figure svg { display: block; width: 100%; min-width: 560px; height: auto; color: var(--ink-2); }
+  figcaption {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 78ch;
+  }
+  figcaption b { color: var(--ink-2); font-weight: 600; }
+
+  .svg-box  { fill: var(--surface); stroke: currentColor; stroke-width: 1; opacity: 0.95; }
+  .svg-box-a { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.25; }
+  .svg-ext  { fill: var(--surface-2); stroke: currentColor; stroke-width: 1; }
+  .svg-ext-q { fill: var(--surface-2); stroke: var(--gap); stroke-width: 1.25; stroke-dasharray: 4 3; }
+  .svg-bound { fill: none; stroke: var(--accent); stroke-width: 1.25; stroke-dasharray: 5 4; opacity: 0.8; }
+  .svg-t    { fill: var(--ink); font-family: var(--sans); font-size: 13px; font-weight: 570; }
+  .svg-s    { fill: var(--muted); font-family: var(--sans); font-size: 11px; }
+  .svg-m    { fill: var(--accent); font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; }
+  .svg-q    { fill: var(--gap); font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; }
+  .svg-l    { fill: var(--muted); font-family: var(--mono); font-size: 10px; }
+  .svg-line { stroke: currentColor; stroke-width: 1.25; fill: none; opacity: 0.55; }
+  .svg-cross { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+  .svg-head  { fill: currentColor; opacity: 0.55; stroke: none; }
+  .svg-head-a { fill: var(--accent); stroke: none; }
+  .svg-box-p { fill: var(--surface); stroke: currentColor; stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.8; }
+  .svg-zone-corp { fill: none; stroke: currentColor; stroke-width: 1; stroke-dasharray: 4 4; opacity: 0.4; }
+  .svg-zone-pub  { fill: none; stroke: var(--gap); stroke-width: 1; stroke-dasharray: 4 4; opacity: 0.65; }
+
+  /* ---------- misc ---------- */
+
+  .lead-stat {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    margin: 26px 0 30px;
+    overflow: hidden;
+  }
+  .ls { background: var(--surface); padding: 18px 20px; }
+  .ls .v {
+    font-family: var(--mono);
+    font-size: 25px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    display: block;
+    line-height: 1.1;
+  }
+  .ls .l {
+    font-size: 12.5px;
+    color: var(--muted);
+    display: block;
+    margin-top: 7px;
+    line-height: 1.35;
+  }
+
+  hr.end {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 64px 0 22px;
+  }
+  .colophon {
+    font-size: 12.5px;
+    color: var(--faint);
+    font-family: var(--mono);
+    line-height: 1.7;
+    max-width: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="doc">
+
+<header class="masthead">
+  <p class="eyebrow">KTP DevOps · Finastra · Pre-build submission to the AI CoE</p>
+  <h1>Kortex AI Initiative</h1>
+  <p class="standfirst">A single working entry point for the KTP DevOps team — where the day's status is reviewed, product and vulnerability questions are answered from Finastra's own knowledge, and operational work is carried out. We are bringing this to the AI Centre of Excellence before building further, as the policy asks. This paper sets out what we intend to build, why, how we propose to protect company and client data, and the decisions we need in order to proceed.</p>
+
+  <div class="frontmatter">
+    <div class="fm-item"><span class="fm-key">Initiative</span><span class="fm-val">Kortex Agentic Platform</span></div>
+    <div class="fm-item"><span class="fm-key">Owner</span><span class="fm-val">KTP DevOps team</span></div>
+    <div class="fm-item"><span class="fm-key">Stage</span><span class="fm-val">Early development</span></div>
+    <div class="fm-item"><span class="fm-key">Status</span><span class="fm-val">Paused — see §4</span></div>
+    <div class="fm-item"><span class="fm-key">Client data</span><span class="fm-val">Never in the corpus — §7</span></div>
+    <div class="fm-item"><span class="fm-key">Date</span><span class="fm-val">27 August 2026</span></div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <p>Contents</p>
+  <ol>
+    <li><a href="#s1">Executive summary</a></li>
+    <li><a href="#s2">Objectives and business value</a></li>
+    <li><a href="#s3">Use cases</a></li>
+    <li><a href="#s4">Where the project stands</a></li>
+    <li><a href="#s5">Solution architecture</a></li>
+    <li><a href="#s6">Technical components</a></li>
+    <li><a href="#s7">Protecting company and client data</a></li>
+    <li><a href="#s8">Security, compliance and governance</a></li>
+    <li><a href="#s9">Roadmap and next steps</a></li>
+    <li><a href="#s10">Decisions requested from the CoE</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<section id="s1">
+  <h2><span class="num">01</span>Executive summary</h2>
+
+  <p>The KTP DevOps team is developing <strong>Kortex</strong>, an internal platform for the KTP Suite — the family of treasury and payments products comprising CTI, KTP, FFC, Payment Factory, KTPWeb and Cargo.</p>
+
+  <p>Kortex is not a question-and-answer assistant, and we want that clear from the outset. The intent is <strong>an alternative entry point for the team's daily work</strong>: open it to see what needs attention today, ask what a product does and get an answer sourced from our own documentation, look up a support case or a vulnerability — and act on it. Some of that acting changes state in downstream systems. Section 7 sets out exactly where, and what we propose to do about it.</p>
+
+  <p>The initiative is at an <strong>early development stage</strong>. A working prototype demonstrates the core pattern end to end; the multi-agent extension is written but has not been validated. <strong>Development is currently paused</strong> because the model service the prototype was built against — GitHub Models — has been fully retired. Section 4 sets that out in full.</p>
+
+  <div class="lead-stat">
+    <div class="ls"><span class="v">7</span><span class="l">Use cases identified</span></div>
+    <div class="ls"><span class="v">8</span><span class="l">Specialised agents — 2 working, 6 planned</span></div>
+    <div class="ls"><span class="v">2</span><span class="l">Capabilities that change state, not just report</span></div>
+    <div class="ls"><span class="v">1</span><span class="l">Data flow carrying Finastra content out</span></div>
+  </div>
+
+  <p>We are presenting now rather than later for three reasons, each of which maps to something the CoE exists to do. We are <strong>asking before we build</strong>, while the design decisions that are expensive to reverse are still open. We are <strong>asking whether this has already been solved</strong> at Finastra, particularly on model procurement, where we are stuck on a problem another team has probably already worked through. And we want the <strong>security, privacy and regulatory standards</strong> designed in from the start rather than retrofitted, which is why Section 7 leads on data protection rather than treating it as an annex.</p>
+
+  <div class="note">
+    <p><span class="label">What we are asking for</span>A sanctioned model service so development can resume; confirmation that the data flows in Section 5 and the protections in Section 7 meet the required standard; and agreement on the readiness gate in Section 9 that must be cleared before anyone outside the pilot team uses this.</p>
+  </div>
+
+  <p>We are not asking for production approval, and we are not presenting a finished system. What we are asking the CoE to judge is whether the idea is sound, whether the approach is the right one, and what conditions we should build to.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s2">
+  <h2><span class="num">02</span>Objectives and business value</h2>
+
+  <p>The KTP DevOps team supports a product family whose knowledge is fragmented across product documentation, Salesforce cases, ServiceNow vulnerability records, Jira issues and the experience held by individual engineers. Four objectives follow from that: reaching product knowledge, reaching resolution knowledge, seeing the day's work in one place, and building the capability to do more of this.</p>
+
+  <h3>Who this is for</h3>
+  <p>The pilot population is the <strong>DevOps and Client Services teams</strong> — a mix of technical and client-facing roles, each of which uses the platform differently.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Profile</th><th>What Kortex does for them</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Support</td><td>Diagnose issues, find solutions in documentation, work through case resolution</td></tr>
+        <tr><td class="k">Consultants and project managers</td><td>Implementation guidance, case follow-up, go-live support</td></tr>
+        <tr><td class="k">DevOps and SRE</td><td>Technical ticket triage, vulnerability management, database operations</td></tr>
+        <tr><td class="k">Management</td><td>Status summaries, dashboard insight, escalation support</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Objective 1 — Product answers without waiting for the person who knows</h3>
+
+  <p>The KTP Suite is large, and the people who understand it best are the people most interrupted. Finding out how something works today means reading through product documentation, or asking a colleague and waiting — and that colleague may be in another time zone, on leave, or in the middle of their own escalation. The knowledge is not missing. Reaching it depends on someone's availability.</p>
+
+  <p>Kortex answers product questions directly from the official documentation, with citations back to the source, and — this matters more than it first sounds — <strong>correct for the version the user is actually running</strong>. Someone working on CTI 23.2 gets 23.2's answer, not 24.1's. This is also the clearest thing a general-purpose assistant cannot do for us: it has no way of knowing which release is in front of the person asking.</p>
+
+  <p>Three consequences follow, and each is worth stating separately:</p>
+  <ul>
+    <li><strong>Specialist time is reclaimed.</strong> Routine questions stop arriving at the few people who can answer everything.</li>
+    <li><strong>New joiners get further alone.</strong> Onboarding currently runs on shoulder-tapping. This is also the benefit easiest to measure, which matters given we have no baseline for anything else.</li>
+    <li><strong>Answers become traceable.</strong> Every response cites its source and is recorded. A corridor conversation is neither — so this makes knowledge transfer auditable in a way our current practice is not.</li>
+  </ul>
+
+  <p>The corpus is maintained operationally: documentation is uploaded as it is published, and on each release. Version history is retained deliberately, because colleagues supporting older releases need the answer that was true for theirs.</p>
+
+  <h3>Objective 2 — Get from symptom to resolution faster</h3>
+
+  <p>When an engineer picks up an application error or a vulnerability report, the work divides into two parts: working out what is going on, and fixing it. The second part is often minutes. The first routinely takes days.</p>
+
+  <p>It takes days because there is no way to know whether a precedent exists. So the engineer reads the documentation, searches related email threads, and asks colleagues whether anyone has seen it before — completing that whole sweep <em>before</em> establishing whether the answer was already written down by someone else months ago. When it was, the exploration was wasted. When it was not, the exploration was necessary but nobody else benefits from it next time.</p>
+
+  <p>The knowledge that would shorten this exists, but not in the official documentation. It is in the investigation and resolution write-ups produced every time somebody solves one of these — and those live in individual reports and individual memories. <strong>Objective 1 is about reaching knowledge that has been published. This one is about reaching knowledge we had to earn.</strong></p>
+
+  <p>Two kinds of work sit here, and they behave the same way:</p>
+  <ul>
+    <li><strong>Application bugs and errors</strong> — where a colleague has almost certainly met something similar.</li>
+    <li><strong>Vulnerability handling</strong> — where a report arrives, is distributed across the team, and each engineer investigates and remediates for their own case or server. Our accumulated assessments describe how vulnerabilities actually affect our products, which no external source knows.</li>
+  </ul>
+
+  <p>The question we want answerable in seconds is the one that currently takes days to even ask: <em>have we seen this before, and what did we actually do about it?</em></p>
+
+  <h3>Objective 3 — One place to start the day</h3>
+
+  <p>A working day currently begins by checking several systems in turn to establish what needs attention — Jira for issues, Salesforce for cases, ServiceNow for vulnerability records, the databases for whatever is running. Reconstructing that picture is a daily tax, and it is paid before any actual work starts.</p>
+
+  <p>Kortex is intended to present that picture in one place, scoped to the individual: what has moved, what is waiting, what needs a decision — and then let the person act on it without leaving. Salesforce, ServiceNow, Jira, Office 365 and our database administration application are integrated to make this possible, but the integration is the method, not the point. The point is being able to start.</p>
+
+  <p>The case-oriented integrations handle client-identifying content and therefore carry a higher classification than the rest of the platform; Section 7 sets out how we propose to treat them.</p>
+
+  <h3>Objective 4 — Build AI development skills in the team</h3>
+  <p>The team is new to building with AI, and this initiative is deliberately also a learning exercise. The intent is to expand the team's skillset with the technologies this kind of work requires — retrieval, orchestration, evaluation, and the frameworks around them, of which LangChain is one example among several — rather than to acquire a single tool.</p>
+  <p>The expected return is optionality. A team that understands how these systems are built recognises where else they would help, and can judge what to build, what to buy and what to leave alone. We would equally welcome the CoE pointing us toward teams further ahead than us; learning in that direction is the more valuable one.</p>
+
+  <div class="note">
+    <p><span class="label">On benefit measurement</span>We do not have a measured baseline for any of these objectives, and at this stage we would not expect to. Figures quoted now would be estimates presented as evidence.</p>
+    <p>We propose instead that establishing a baseline becomes a condition of proceeding past prototype: across the DevOps and Client Services pilot, instrument how long a defined set of questions takes to answer today against how long it takes through Kortex, over a four-week window. The telemetry needed to do this is already part of the design.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="s3">
+  <h2><span class="num">03</span>Use cases</h2>
+
+  <p>Seven use cases have been identified, all within Kortex. Several are delivered through skills — self-contained integrations with Salesforce, ServiceNow, Jira, Office 365 and our database administration application — which Kortex agents call. Status below describes how far each has reached: <em>working</em> means demonstrated end to end, <em>planned</em> means specified but not built.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Ref</th><th>Use case</th><th>Primary users</th><th>How it works</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="id">UC-01</td>
+          <td class="k">Product documentation Q&amp;A</td>
+          <td>Support, consultants, PMs</td>
+          <td>Semantic retrieval over the ingested CTI/KTP corpus, with relevance grading and a web-search fallback when internal documents do not answer the question.</td>
+          <td class="tight"><span class="chip c-ok">Working</span></td>
+        </tr>
+        <tr>
+          <td class="id">UC-02</td>
+          <td class="k">CVE impact assessment</td>
+          <td>DevOps, security</td>
+          <td>Correlates an incoming advisory with our own investigation and resolution history, so past findings inform the current case. Vulnerability report data is read-only to us.</td>
+          <td class="tight"><span class="chip c-plan">Planned</span></td>
+        </tr>
+        <tr>
+          <td class="id">UC-03</td>
+          <td class="k">Database operations queries</td>
+          <td>DevOps, SRE</td>
+          <td>Database questions and operations routed to our existing database administration service. <strong>Includes write operations</strong> — controls set out in Section 7.</td>
+          <td class="tight"><span class="chip c-ok">Working</span></td>
+        </tr>
+        <tr>
+          <td class="id">UC-04</td>
+          <td class="k">Document corpus management</td>
+          <td>Platform admins</td>
+          <td>Admin interface to browse, upload and delete ingested documents, with asynchronous processing and content-hash deduplication.</td>
+          <td class="tight"><span class="chip c-part">Implemented</span></td>
+        </tr>
+        <tr>
+          <td class="id">UC-05</td>
+          <td class="k">Daily operational digest</td>
+          <td>All roles</td>
+          <td>Per-agent daily reports aggregated into a single view, which can be carried into a chat session for follow-up questions.</td>
+          <td class="tight"><span class="chip c-part">Partial</span></td>
+        </tr>
+        <tr>
+          <td class="id">UC-06</td>
+          <td class="k">Case 360° triage</td>
+          <td>Support, consultants</td>
+          <td>Pulls a Salesforce case together with related ServiceNow, Jira and Office 365 context. <strong>Client-identifying content</strong> — carries a higher classification than the rest of the platform; see Section 7.</td>
+          <td class="tight"><span class="chip c-part">Partial</span></td>
+        </tr>
+        <tr>
+          <td class="id">UC-07</td>
+          <td class="k">Role-based Copilot profiles</td>
+          <td>All roles</td>
+          <td>Curated instruction sets per profile — AI, developer, DevOps, content, management — so day-to-day assistant use follows team conventions.</td>
+          <td class="tight"><span class="chip c-part">Partial</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Capabilities waiting on the model decision</h3>
+
+  <p>Two capabilities sit behind <strong>D-1</strong>. They are at different stages, and the difference is worth noting: one of them <em>worked</em>, and stopped.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Capability</th><th>What it does</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="k">User-selectable models</td>
+          <td>Lets a user choose the model suited to the task, with the interface adapting to whether that model supports extended reasoning, tool calling or images.</td>
+          <td class="tight"><span class="chip c-part">Built · dormant</span></td>
+        </tr>
+        <tr>
+          <td class="k">Image input</td>
+          <td>Attaching a screenshot to a question. Support work is largely visual — an error dialog, a stack trace, a configuration screen — and the case-specific troubleshooting documents we intend to ingest are themselves substantially screenshots.</td>
+          <td class="tight"><span class="chip c-plan">Not built</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Model selection was working</strong> against the previous provider's catalogue. It is not unbuilt — it is unusable, because there is no longer a catalogue to select from. It becomes available again as soon as there is an approved one. Image input has never been built and additionally requires a vision-capable model.</p>
+
+  <figure>
+    <svg viewBox="0 0 1000 190" role="img" aria-label="The six-stage CVE impact assessment pipeline, from retrieving the advisory to producing a structured report, showing where the public advisory database and the internal inventory feed in.">
+      <defs>
+        <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path class="svg-head" d="M 0 1 L 9 5 L 0 9 z"/>
+        </marker>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path class="svg-head-a" d="M 0 1 L 9 5 L 0 9 z"/>
+        </marker>
+      </defs>
+
+      <text class="svg-m" x="80" y="26" text-anchor="middle">VULNERABILITY REPORT</text>
+      <line class="svg-cross" x1="80" y1="34" x2="80" y2="58" marker-end="url(#ar2)"/>
+      <text class="svg-m" x="408" y="26" text-anchor="middle">OUR RESOLUTION HISTORY</text>
+      <line class="svg-cross" x1="408" y1="34" x2="408" y2="58" marker-end="url(#ar2)"/>
+
+      <rect class="svg-box"   x="20"  y="60" width="120" height="56" rx="3"/>
+      <text class="svg-t"     x="80"  y="84" text-anchor="middle">Receive</text>
+      <text class="svg-s"     x="80"  y="101" text-anchor="middle">read-only feed</text>
+
+      <rect class="svg-box"   x="184" y="60" width="120" height="56" rx="3"/>
+      <text class="svg-t"     x="244" y="84" text-anchor="middle">Extract</text>
+      <text class="svg-s"     x="244" y="101" text-anchor="middle">affected components</text>
+
+      <rect class="svg-box"   x="348" y="60" width="120" height="56" rx="3"/>
+      <text class="svg-t"     x="408" y="84" text-anchor="middle">Search</text>
+      <text class="svg-s"     x="408" y="101" text-anchor="middle">what we did before</text>
+
+      <rect class="svg-box-a" x="512" y="60" width="120" height="56" rx="3"/>
+      <text class="svg-t"     x="572" y="84" text-anchor="middle">Assess</text>
+      <text class="svg-s"     x="572" y="101" text-anchor="middle">our exposure</text>
+
+      <rect class="svg-box"   x="676" y="60" width="120" height="56" rx="3"/>
+      <text class="svg-t"     x="736" y="84" text-anchor="middle">Remediate</text>
+      <text class="svg-s"     x="736" y="101" text-anchor="middle">from prior fixes</text>
+
+      <rect class="svg-box"   x="840" y="60" width="140" height="56" rx="3"/>
+      <text class="svg-t"     x="910" y="84" text-anchor="middle">Report</text>
+      <text class="svg-s"     x="910" y="101" text-anchor="middle">structured · sourced</text>
+
+      <line class="svg-line" x1="140" y1="88" x2="178" y2="88" marker-end="url(#ar1)"/>
+      <line class="svg-line" x1="304" y1="88" x2="342" y2="88" marker-end="url(#ar1)"/>
+      <line class="svg-line" x1="468" y1="88" x2="506" y2="88" marker-end="url(#ar1)"/>
+      <line class="svg-line" x1="632" y1="88" x2="670" y2="88" marker-end="url(#ar1)"/>
+      <line class="svg-line" x1="796" y1="88" x2="834" y2="88" marker-end="url(#ar1)"/>
+
+      <text class="svg-l" x="572" y="146" text-anchor="middle">verdict — requires named human confirmation</text>
+      <line class="svg-line" x1="572" y1="116" x2="572" y2="134" marker-end="url(#ar1)"/>
+      <text class="svg-l" x="980" y="146" text-anchor="end">exposure · actions · precedents</text>
+    </svg>
+    <figcaption><b>UC-02, the vulnerability assessment pipeline.</b> The report arrives from our source as a read-only feed; the second input is our own accumulated investigation and resolution write-ups. The assessment stage — highlighted — is where the two meet, and it is the stage no external tool could perform for us, because no external tool holds our history. We propose the verdict requires named human confirmation before it counts as an assessment of record; see Section 7.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ -->
+<section id="s4">
+  <h2><span class="num">04</span>Where the project stands</h2>
+
+  <p>We would rather be direct about this than present the initiative as further along than it is.</p>
+
+  <h3>What has been demonstrated</h3>
+  <p>The core pattern works end to end: Entra sign-in, role-based access, semantic retrieval over an ingested corpus, streamed answers with source citations, and conversation memory. User-selectable models worked as well — a user could choose the model suited to the task, and the interface adapted to what that model supported. The multi-agent extension — orchestrator, CVE agent, database agent — is written and structurally complete, but has not been validated against real questions or real users.</p>
+
+  <p>It is worth being clear that the withdrawal did not simply pause new work. <strong>It disabled something that was working.</strong> Model selection is not unbuilt; it is unusable, because there is no longer a catalogue to select from. It returns the day there is an approved one.</p>
+
+  <h3>What has stopped</h3>
+
+  <div class="note alert">
+    <p><span class="label">Development is blocked</span>Kortex was built against <strong>GitHub Models</strong> for both chat inference and embeddings. That service has now been fully retired. Every path through the system depends on it — answering, intent classification, document grading and corpus embedding — so development has halted rather than slowed.</p>
+    <p>This is the single reason we are bringing the submission now rather than after further build.</p>
+  </div>
+
+  <p>In fairness to the decision that has been made for us: GitHub Models was an experimentation-tier service, and the prototype had already run into its limits. Our own status report records first responses taking around a minute because of rate-limit backoff, and the ingestion pipeline carries a deliberate pause between embedding batches for the same reason. We would have had to move to a production-grade inference service regardless. Its retirement has brought that decision forward rather than created it.</p>
+
+  <h3>Why this is a procurement question, not an engineering one</h3>
+  <p>The model client is built against an OpenAI-compatible interface with a configurable endpoint. Any provider offering that interface is a <strong>configuration change</strong> — endpoint, credential, model name — not a redesign. The architecture in Section 5 is unaffected by which provider is chosen.</p>
+
+  <p>There is one real migration cost. The embedding model determines the vector dimensions of the corpus index, so <strong>changing embedding provider means re-embedding the entire corpus</strong> and recreating the index. That is manageable now, while the corpus is small, and progressively less so later. It also argues for choosing an embedding model we can commit to for some years.</p>
+
+  <h3>Options, for the CoE to rule on</h3>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Option</th><th>Data handling posture</th><th>Migration effort</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="k">Tenant-scoped managed service on Finastra's existing cloud platform</td>
+          <td>Contractual no-training commitment, controllable processing region, private connectivity typically available</td>
+          <td class="tight">Configuration</td>
+          <td>Likely the lowest-friction route if another Finastra team has already been assessed and onboarded.</td>
+        </tr>
+        <tr>
+          <td class="k">Managed model catalogue on an alternative hyperscaler</td>
+          <td>Broadly comparable, subject to contract</td>
+          <td class="tight">Configuration</td>
+          <td>Depends on existing platform commitments and where the assessment work has already been done.</td>
+        </tr>
+        <tr>
+          <td class="k">Self-hosted open-weight models</td>
+          <td>Strongest — no content leaves Finastra infrastructure at all</td>
+          <td class="tight">Significant</td>
+          <td>Requires GPU capacity and operational ownership. Removes the only content egress in the design, which may matter if the corpus classification is stricter than we assume.</td>
+        </tr>
+        <tr>
+          <td class="k">Direct vendor API</td>
+          <td>Varies by contract</td>
+          <td class="tight">Configuration</td>
+          <td>Would need its own third-party risk assessment, which is the slowest path unless one already exists.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p><span class="label">Our position</span>We have no preference we would defend over the CoE's. The question that matters is which providers Finastra has already assessed and approved — which is precisely the case for bringing this to a central forum rather than each team solving it alone.</p>
+  </div>
+
+  <h3>What this now costs</h3>
+
+  <p>Worth stating plainly, because it changes the business case. The prototype ran on a service that carried no marginal cost to us. Every replacement above has one: managed services charge per token, and self-hosting substitutes GPU capacity and operational ownership for that. <strong>This initiative no longer carries zero marginal cost, and we are not going to present it as though it does.</strong></p>
+
+  <p>We are not putting a figure in this paper, because a credible one depends on which provider is chosen and on usage volumes we have not yet measured. We will produce an estimate once D-1 is settled, alongside the four-week baseline described in Section 2.</p>
+
+  <p>Two aspects of the design make the cost shape more predictable than it might first appear. The corpus is <strong>embedded once</strong> and incrementally thereafter — with content-hash deduplication preventing repeat work — rather than per query. And the lightweight steps in each request, intent classification and document grading, are already routed to a smaller and cheaper model than the one that composes the answer. Both were design decisions taken for latency and are equally useful for cost.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s5">
+  <h2><span class="num">05</span>Solution architecture</h2>
+
+  <p>Kortex is a three-tier containerised application. A web front end handles sign-in and proxies requests server-side. A back end validates the token, enforces role-based access, and passes the request to an orchestrator that classifies intent and routes to the appropriate agent. All state — vectors, conversation memory, user records — is held in self-hosted stores.</p>
+
+  <p>For this review, the material question is not the tier diagram but the <strong>trust boundary</strong>: what leaves Finastra-controlled infrastructure, and what rides on it.</p>
+
+  <figure>
+    <svg viewBox="0 0 1120 470" role="img" aria-label="Kortex architecture in three zones: the self-hosted stack containing the orchestrator, eight agents and the data stores; Finastra corporate systems which the agents read from; and public external services, which is where disclosure actually occurs.">
+      <defs>
+        <marker id="ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path class="svg-head" d="M 0 1 L 9 5 L 0 9 z"/>
+        </marker>
+        <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="svg-head-a" d="M 0 1 L 9 5 L 0 9 z"/>
+        </marker>
+        <marker id="az" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="svg-head-a" d="M 9 1 L 0 5 L 9 9 z"/>
+        </marker>
+      </defs>
+
+      <rect class="svg-bound" x="20" y="56" width="600" height="384" rx="6"/>
+      <text class="svg-m" x="36" y="46">SELF-HOSTED — FINASTRA-CONTROLLED</text>
+
+      <rect class="svg-box" x="44" y="80" width="552" height="42" rx="3"/>
+      <text class="svg-t" x="60" y="99">Front end</text>
+      <text class="svg-s" x="60" y="114">sign-in · server-side proxy · bilingual</text>
+
+      <rect class="svg-box" x="44" y="132" width="552" height="42" rx="3"/>
+      <text class="svg-t" x="60" y="151">Back end</text>
+      <text class="svg-s" x="60" y="166">token validation · RBAC · rate limiting · streaming</text>
+
+      <rect class="svg-box-a" x="44" y="184" width="552" height="42" rx="3"/>
+      <text class="svg-t" x="60" y="203">Orchestrator</text>
+      <text class="svg-s" x="60" y="218">classifies intent · routes to an agent</text>
+
+      <rect class="svg-box" x="44" y="240" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="108" y="261" text-anchor="middle" font-size="12">Search</text>
+      <text class="svg-s" x="108" y="276" text-anchor="middle">corpus retrieval</text>
+
+      <rect class="svg-box-p" x="185" y="240" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="249" y="261" text-anchor="middle" font-size="12">CVE</text>
+      <text class="svg-s" x="249" y="276" text-anchor="middle">impact assessment</text>
+
+      <rect class="svg-box" x="326" y="240" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="390" y="261" text-anchor="middle" font-size="12">DBAdmin</text>
+      <text class="svg-q" x="390" y="276" text-anchor="middle">READ + WRITE</text>
+
+      <rect class="svg-box-p" x="467" y="240" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="531" y="261" text-anchor="middle" font-size="12">Salesforce</text>
+      <text class="svg-s" x="531" y="276" text-anchor="middle">cases · root cause</text>
+
+      <rect class="svg-box-p" x="44" y="296" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="108" y="317" text-anchor="middle" font-size="12">Jira</text>
+      <text class="svg-s" x="108" y="332" text-anchor="middle">issues · commits</text>
+
+      <rect class="svg-box-p" x="185" y="296" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="249" y="317" text-anchor="middle" font-size="12">ServiceNow</text>
+      <text class="svg-s" x="249" y="332" text-anchor="middle">INC · CHG · RITM · PRB</text>
+
+      <rect class="svg-box-p" x="326" y="296" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="390" y="317" text-anchor="middle" font-size="12">Infrastructure</text>
+      <text class="svg-s" x="390" y="332" text-anchor="middle">resource reports</text>
+
+      <rect class="svg-box-p" x="467" y="296" width="129" height="46" rx="3"/>
+      <text class="svg-t" x="531" y="317" text-anchor="middle" font-size="12">Reports</text>
+      <text class="svg-s" x="531" y="332" text-anchor="middle">branded HTML · PDF</text>
+
+      <rect class="svg-box" x="44" y="364" width="129" height="52" rx="3"/>
+      <text class="svg-t" x="108" y="386" text-anchor="middle" font-size="12">Vector store</text>
+      <text class="svg-s" x="108" y="401" text-anchor="middle">corpus + embeddings</text>
+
+      <rect class="svg-box" x="185" y="364" width="129" height="52" rx="3"/>
+      <text class="svg-t" x="249" y="386" text-anchor="middle" font-size="12">Cache</text>
+      <text class="svg-s" x="249" y="401" text-anchor="middle">chat memory · 24h</text>
+
+      <rect class="svg-box" x="326" y="364" width="129" height="52" rx="3"/>
+      <text class="svg-t" x="390" y="386" text-anchor="middle" font-size="12">App database</text>
+      <text class="svg-s" x="390" y="401" text-anchor="middle">users · roles</text>
+
+      <rect class="svg-box" x="467" y="364" width="129" height="52" rx="3"/>
+      <text class="svg-t" x="531" y="386" text-anchor="middle" font-size="12">Metasearch</text>
+      <text class="svg-s" x="531" y="401" text-anchor="middle">self-hosted</text>
+
+      <line class="svg-line" x1="320" y1="122" x2="320" y2="128" marker-end="url(#ax)"/>
+      <line class="svg-line" x1="320" y1="174" x2="320" y2="180" marker-end="url(#ax)"/>
+      <line class="svg-line" x1="320" y1="226" x2="320" y2="234" marker-end="url(#ax)"/>
+      <line class="svg-line" x1="320" y1="342" x2="320" y2="358" marker-end="url(#ax)"/>
+
+      <rect class="svg-zone-corp" x="700" y="56" width="400" height="150" rx="6"/>
+      <text class="svg-l" x="712" y="48">FINASTRA CORPORATE SYSTEMS — OUR OWN TENANTS</text>
+
+      <rect class="svg-ext" x="712" y="86" width="185" height="46" rx="3"/>
+      <text class="svg-t" x="804" y="106" text-anchor="middle" font-size="12">Entra ID</text>
+      <text class="svg-s" x="804" y="121" text-anchor="middle">identity</text>
+
+      <rect class="svg-ext" x="911" y="86" width="185" height="46" rx="3"/>
+      <text class="svg-t" x="1003" y="106" text-anchor="middle" font-size="12">Salesforce</text>
+      <text class="svg-s" x="1003" y="121" text-anchor="middle">support cases</text>
+
+      <rect class="svg-ext" x="712" y="140" width="185" height="46" rx="3"/>
+      <text class="svg-t" x="804" y="160" text-anchor="middle" font-size="12">ServiceNow</text>
+      <text class="svg-s" x="804" y="175" text-anchor="middle">tickets · vulnerabilities</text>
+
+      <rect class="svg-ext" x="911" y="140" width="185" height="46" rx="3"/>
+      <text class="svg-t" x="1003" y="160" text-anchor="middle" font-size="12">Jira · Office 365</text>
+      <text class="svg-s" x="1003" y="175" text-anchor="middle">issues · mail</text>
+
+      <rect class="svg-zone-pub" x="700" y="230" width="400" height="170" rx="6"/>
+      <text class="svg-q" x="712" y="222">PUBLIC — WHERE DISCLOSURE ACTUALLY HAPPENS</text>
+
+      <rect class="svg-ext-q" x="712" y="258" width="384" height="54" rx="3"/>
+      <text class="svg-t" x="904" y="279" text-anchor="middle">Model provider</text>
+      <text class="svg-q" x="904" y="296" text-anchor="middle">TO BE AGREED — D-1</text>
+
+      <rect class="svg-ext" x="712" y="324" width="185" height="46" rx="3"/>
+      <text class="svg-t" x="804" y="344" text-anchor="middle" font-size="12">Vulnerability DB</text>
+      <text class="svg-s" x="804" y="359" text-anchor="middle">NIST NVD</text>
+
+      <rect class="svg-ext" x="911" y="324" width="185" height="46" rx="3"/>
+      <text class="svg-t" x="1003" y="344" text-anchor="middle" font-size="12">Search engines</text>
+      <text class="svg-s" x="1003" y="359" text-anchor="middle">five, via corporate proxy</text>
+
+      <line class="svg-cross" x1="624" y1="109" x2="696" y2="109" marker-end="url(#ay)" marker-start="url(#az)"/>
+      <text class="svg-m" x="660" y="101" text-anchor="middle">SIGN-IN</text>
+
+      <line class="svg-cross" x1="624" y1="163" x2="696" y2="163" marker-end="url(#ay)" marker-start="url(#az)"/>
+      <text class="svg-m" x="660" y="148" text-anchor="middle">READS CASES,</text>
+      <text class="svg-m" x="660" y="158" text-anchor="middle">TICKETS, MAIL</text>
+
+      <line class="svg-cross" x1="624" y1="285" x2="696" y2="285" marker-end="url(#ay)" marker-start="url(#az)"/>
+      <text class="svg-q" x="660" y="270" text-anchor="middle">PROMPT +</text>
+      <text class="svg-q" x="660" y="280" text-anchor="middle">DOC EXTRACTS</text>
+
+      <line class="svg-cross" x1="624" y1="347" x2="696" y2="347" marker-end="url(#ay)"/>
+      <text class="svg-q" x="660" y="332" text-anchor="middle">CVE ID ·</text>
+      <text class="svg-q" x="660" y="342" text-anchor="middle">SEARCH TERMS</text>
+    </svg>
+    <figcaption><b>Three zones, and only one of them is disclosure.</b> Everything holding our data — corpus, embeddings, chat history, user records — sits in the self-hosted zone. The agents reach outward into <b>Finastra&rsquo;s own corporate systems</b>, but that is retrieval from tenants we already own: the case and ticket data is Finastra&rsquo;s before Kortex touches it, and reading it discloses nothing new. Disclosure happens only in the third zone — the model provider, which receives questions together with retrieved document extracts and is the decision still open; the public vulnerability database, which receives a CVE identifier; and the five search engines, which receive composed query terms by way of the corporate proxy. Solid agent boxes are working today, dashed are planned; the database agent is the one that can <b>change state</b> rather than only read.</figcaption>
+  </figure>
+
+  <h3>Request path</h3>
+  <ol>
+    <li>The user signs in through the corporate identity provider; the session is held server-side.</li>
+    <li>A question is posted to the front-end proxy, which attaches the bearer token and forwards to the back end.</li>
+    <li>The back end validates the token against the provider's published signing keys, resolves the user's role, and checks that the role grants the chat module. Users without an approved role are refused.</li>
+    <li>The orchestrator classifies the question and extracts any product, version or CVE identifier.</li>
+    <li>The request is routed to the matching agent. The Search Agent retrieves from the vector store, grades the results for relevance, and falls back to web search only when internal documents do not answer the question.</li>
+    <li>The answer is streamed back token by token. The conversation turn is written to the cache with a 24-hour expiry, and the interaction is traced for observability.</li>
+  </ol>
+</section>
+
+<!-- ============================================================ -->
+<section id="s6">
+  <h2><span class="num">06</span>Technical components</h2>
+
+  <p>Components were chosen for portability and for the ability to self-host anything holding Finastra data. Where a hosted alternative was considered and rejected, the reason is recorded.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Layer</th><th>Selected</th><th>Role</th><th>Rationale / alternatives considered</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">Language models</td><td><span class="chip c-gap">Open — D-1</span></td><td>Chat inference and embeddings</td><td>Previously GitHub Models, now retired. The client is provider-agnostic; see Section 4 for options.</td></tr>
+        <tr><td class="k">Agent framework</td><td>LangGraph</td><td>Multi-agent orchestration</td><td>Supports cyclic graphs, which the CVE workflow needs, plus native token streaming.</td></tr>
+        <tr><td class="k">RAG framework</td><td>LangChain</td><td>Retrieval, prompting, tools</td><td>Mainstream and portable; avoids lock-in to a vendor RAG platform.</td></tr>
+        <tr><td class="k">Vector store</td><td>Qdrant</td><td>Document chunks and embeddings</td><td>Self-hosted. Document content never leaves the estate at rest.</td></tr>
+        <tr><td class="k">Cache and queue</td><td>Redis</td><td>Conversation memory, ingestion jobs</td><td>Chat history expires after 24 hours.</td></tr>
+        <tr><td class="k">Application database</td><td>PostgreSQL</td><td>Users, roles, statuses, modules</td><td>Schema under versioned migrations.</td></tr>
+        <tr><td class="k">Web search</td><td>SearXNG</td><td>Fallback when documents fall short</td><td>Self-hosted metasearch — a container in our own stack, with no external API dependency, no vendor account and no key. <strong>A hosted search API was evaluated and rejected</strong> on two grounds: its free tier could not carry our usage, and a paid one would have placed a history of what Finastra staff research with a third party under contract. Section 7 sets out where queries actually go.</td></tr>
+        <tr><td class="k">Vulnerability data</td><td>NIST NVD API</td><td>CVE advisories</td><td>Public authoritative source. Only the CVE identifier is sent.</td></tr>
+        <tr><td class="k">Authentication</td><td>Entra ID (OIDC)</td><td>Sign-in</td><td>Corporate identity provider; no local account store.</td></tr>
+        <tr><td class="k">Back end</td><td>FastAPI (Python 3.12)</td><td>API and streaming</td><td>Async throughout; server-sent events for token streaming.</td></tr>
+        <tr><td class="k">Front end</td><td>Next.js 15</td><td>Chat and admin interfaces</td><td>Server components keep the token out of the browser. Bilingual FR/EN.</td></tr>
+        <tr><td class="k">Ingestion</td><td>Standalone worker</td><td>Load, chunk, embed, index</td><td>Handles PDF, DOCX, PPTX, XLSX, HTML and Markdown, with content-hash deduplication.</td></tr>
+        <tr><td class="k">Observability</td><td>Langfuse, Prometheus, Grafana, Loki</td><td>Traces, metrics, dashboards, logs</td><td>All self-hosted. Trace retention policy is an open decision — see D-4.</td></tr>
+        <tr><td class="k">Secrets</td><td>SOPS + age</td><td>Encrypted configuration</td><td>AES-256-GCM. Plaintext configuration never committed; private keys stay local. A managed secret store is the target state.</td></tr>
+        <tr><td class="k">Runtime</td><td>Podman / Docker Compose</td><td>Container orchestration</td><td>Adequate for development. A supported service would need a managed platform.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="s7">
+  <h2><span class="num">07</span>Protecting company and client data</h2>
+
+  <p>The CoE's remit includes making sure every AI solution meets the security, privacy and regulatory standards our customers expect. Because we are presenting before building further, these can be designed in rather than retrofitted. This section sets out what we propose; several points need a CoE ruling and are carried into Section 10.</p>
+
+  <h3>What data the system touches</h3>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Data category</th><th>In scope</th><th>Where it lives</th><th>Leaves Finastra infrastructure?</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="k">Internal product documentation</td>
+          <td class="tight"><span class="chip c-ok">Yes — the corpus</span></td>
+          <td>Self-hosted vector store</td>
+          <td>Retrieved extracts accompany the question to the model provider</td>
+        </tr>
+        <tr>
+          <td class="k">User identity</td>
+          <td class="tight"><span class="chip c-ok">Yes — minimal</span></td>
+          <td>Self-hosted database: name, work email, directory object ID</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td class="k">Questions and answers</td>
+          <td class="tight"><span class="chip c-ok">Yes</span></td>
+          <td>Cache (24h expiry) and observability traces</td>
+          <td>The question reaches the model provider</td>
+        </tr>
+        <tr>
+          <td class="k">Public vulnerability data</td>
+          <td class="tight"><span class="chip c-ok">Yes</span></td>
+          <td>Fetched on demand, not stored</td>
+          <td>Only the CVE identifier is sent out</td>
+        </tr>
+        <tr>
+          <td class="k">Troubleshooting documentation, per case</td>
+          <td class="tight"><span class="chip c-part">Planned</span></td>
+          <td>Self-hosted vector store, alongside product documentation</td>
+          <td>Retrieved extracts accompany the question to the model provider</td>
+        </tr>
+        <tr class="excluded">
+          <td class="k">Anonymised client data in test databases</td>
+          <td class="tight"><span class="chip c-part">Reachable</span></td>
+          <td>Test and troubleshooting databases, reached through the database operations capability</td>
+          <td>No — but reachable by an authorised user through Kortex</td>
+        </tr>
+        <tr class="excluded">
+          <td class="k">Support case, ticket, issue and mailbox content</td>
+          <td class="tight"><span class="chip c-part">Retrieved, never stored</span></td>
+          <td>Fetched from Salesforce, ServiceNow, Jira or Office 365 for one task; not ingested, not embedded; present in that conversation until it expires</td>
+          <td>Only as part of that request's context</td>
+        </tr>
+        <tr>
+          <td class="k">Generated reports</td>
+          <td class="tight"><span class="chip c-part">Inherits its input</span></td>
+          <td>Branded HTML, Word or PDF assembled from whatever an agent produced — so a report built from case data carries that data in a file</td>
+          <td>Only if the underlying content did</td>
+        </tr>
+        <tr class="excluded">
+          <td class="k">Client data in the corpus · production client environments</td>
+          <td class="tight"><span class="chip c-gap">Excluded</span></td>
+          <td>Never ingested, never indexed, not reachable</td>
+          <td>Not applicable</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>The client-data boundary, stated precisely</h3>
+
+  <p>A blanket claim that no client data is in scope would be convenient and would not survive examination. The useful distinction is not <em>whether</em> client-derived data is involved, but <em>whether it comes to rest inside Kortex</em>.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th></th><th>Ingested into the corpus</th><th>Retrieved for one task</th></tr></thead>
+      <tbody>
+        <tr><td class="k">What happens to it</td><td>Split into extracts, embedded, indexed, stored indefinitely</td><td>Fetched on demand for a single request, then discarded</td></tr>
+        <tr><td class="k">Who can reach it afterwards</td><td>Anyone the retrieval layer serves</td><td>Only the user whose task it was</td></tr>
+        <tr><td class="k">Sent to the model provider</td><td>Yes — the full document, at ingestion, and extracts thereafter</td><td>Only if it forms part of that request's context</td></tr>
+        <tr><td class="k">Lifetime</td><td>Until explicitly deleted</td><td>Expires with the conversation — 24 hours</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>The commitment we propose to hold is about the first column: client data is never ingested into the corpus.</strong> That is a meaningful, testable constraint — the corpus is the part of the system that persists, is searchable by everyone it serves, and is sent to the model provider in full at ingestion. Keeping it free of client data is worth committing to and worth enforcing at the administrator review described above.</p>
+
+  <p>The second column is a different proposition and needs its own controls rather than a prohibition. As the case, ticket and mailbox integrations move from standalone tools into Kortex agents, client-identifying content will be retrieved through Kortex for specific tasks. That is the point of the platform — a support engineer should be able to ask about the case they are working on. Four controls make it defensible:</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Control</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Retrieve using the user's own entitlements in the source system, never a broad service account</td><td>Otherwise Kortex becomes a way to see cases a person could not open directly — the same concern raised for database access, in a different system. This is the control that matters most.</td></tr>
+        <tr><td class="k">Never ingested, never embedded</td><td>Retrieved case content is used for the request and discarded. It does not enter the corpus and does not become searchable by others.</td></tr>
+        <tr><td class="k">Retention follows the conversation</td><td>Chat history expires after 24 hours. Client-derived content inherits that lifetime rather than acquiring its own.</td></tr>
+        <tr><td class="k">Observability retention must account for it</td><td>Traces record full prompts and responses. If a case is pulled into a conversation, it appears in that trace — so the retention ruling we are asking for (D-4) governs client-derived content, not only internal questions. This raises its importance.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Two further routes, stated for completeness.</strong> Test and troubleshooting databases hold <strong>anonymised</strong> client data and are reachable through the database operations capability; we are asking the CoE to assess whether that anonymisation is sufficient rather than asserting it ourselves. And case-specific troubleshooting documents, planned for the corpus, may carry client identifiers incidentally — which is precisely what the administrator review must screen for, not only document quality.</p>
+
+  <p>No production client environment is reachable by any path.</p>
+
+  <h3>The flow that carries document content out</h3>
+  <p>One flow carries Finastra's own material beyond our infrastructure: the model inference call, which sends the user's question together with the document extracts retrieved to answer it. Everything that <em>holds</em> our data — the index, chat history, user records — is self-hosted. Web search is a lesser case, dealt with immediately below: it sends composed query terms rather than document content, but it is not nothing and we treat it separately.</p>
+  <p>That makes the provider decision the most consequential data-protection decision in the initiative, and we propose the following are treated as minimum requirements of any provider:</p>
+  <ul>
+    <li>No training, fine-tuning or human review of our inputs and outputs</li>
+    <li>Zero or short, contractually defined retention of prompts and responses</li>
+    <li>A processing region we can specify and evidence</li>
+    <li>Tenant isolation, with private connectivity in preference to the public internet</li>
+    <li>Terms that support the commitments Finastra itself makes to its clients</li>
+  </ul>
+  <p>If the corpus classification turns out to be stricter than we assume, the self-hosted model option in Section 4 removes this flow entirely. That trade — operational cost against zero content egress — is the CoE's to weigh.</p>
+
+  <h3>Where web searches actually go</h3>
+
+  <p>Self-hosting the search service removes the vendor account and the query history attached to it. It does not, by itself, stop the query reaching the public internet — so the precise position is worth stating.</p>
+
+  <p>The metasearch service holds no index of its own. It forwards a query to whichever upstream engines it is configured for and merges the results. <strong>Five are enabled</strong>: Google, Bing and DuckDuckGo for general results, Wikipedia for reference, and Stack Overflow for technical questions. Outbound requests route through the corporate proxy, so search egress is subject to the same inspection, logging and policy as any other corporate traffic.</p>
+
+  <p>The residual is straightforward and we would rather name it than have it inferred: <strong>those five engines receive the query text.</strong> It is attributable to our corporate egress, not to an individual or to any account we hold with them.</p>
+
+  <h3>Keeping client-derived content away from outbound search</h3>
+
+  <p>That leaves one flow needing an explicit interlock. If a conversation has pulled in case content, and the assistant later falls back to web search, the query it composes could carry something from that case outward. The two capabilities are individually reasonable and problematic in sequence.</p>
+
+  <p>We propose to close this deterministically rather than by judgment. <strong>Once any integration has returned client-sourced content into a conversation, outbound web search is disabled for the remainder of that conversation</strong> — a state flag set when the retrieval happens, not an assessment made afterwards. We deliberately do not want a model deciding whether a given exchange is safe to send outside; a probabilistic classifier is the wrong instrument for a control that must not fail.</p>
+
+  <p>Two further measures sit alongside it. Search queries are <strong>constructed from extracted parameters</strong> — product, version, error code — rather than assembled from free conversation text, so what leaves is bounded by design. And known client identifiers are screened before egress, giving a second check that does not depend on the first.</p>
+
+  <p>The effect is that a conversation is either an internal-context conversation or an external-search one, and never silently both.</p>
+
+  <h3>Controlling access to knowledge, not just to the application</h3>
+  <p>Role-based access governs who may use each part of the platform. It does <em>not</em>, today, govern which documents a user's questions can reach: retrieval queries the whole corpus. That is acceptable while everything in the corpus is readable by the whole team, and it stops being acceptable the moment a restricted document is ingested.</p>
+  <p>We propose to design entitlement filtering into retrieval now — attaching access metadata at ingestion and filtering by the caller's role at query time — because retrofitting it once a corpus has grown is materially harder. We would welcome a view on whether the CoE considers this mandatory from the outset.</p>
+
+  <h3>Controls by data state</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>State</th><th>Control</th></tr></thead>
+      <tbody>
+        <tr><td class="k">In transit</td><td>TLS throughout, with corporate certificate-authority validation. Note the development-stage exception in Section 8.</td></tr>
+        <tr><td class="k">At rest</td><td>Encrypted volumes for the vector store, application database and cache. Configuration secrets encrypted with SOPS and age; a managed secret store is the target.</td></tr>
+        <tr><td class="k">In use</td><td>Deny-by-default authorisation: a newly provisioned user has no access to anything, including chat, until an administrator grants a role. All checks server-side. Retrieval-time entitlement filtering as above.</td></tr>
+        <tr><td class="k">In transit to the model</td><td>Provider requirements as listed above. Only the question and retrieved extracts are sent — never user records or the corpus in bulk.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Retention and erasure</h3>
+  <ul>
+    <li><strong>Chat history</strong> — expires automatically after 24 hours. Already designed in.</li>
+    <li><strong>Observability traces</strong> — capture full prompts and responses. No retention policy is set; we are asking for a ruling (D-4).</li>
+    <li><strong>Corpus documents</strong> — individually removable by content hash, taking all derived extracts with them.</li>
+    <li><strong>User offboarding</strong> — what happens to a departing user's history and traces needs defining alongside D-4.</li>
+  </ul>
+
+  <h3>Where Kortex acts, not just answers</h3>
+
+  <p>Because Kortex is intended as an entry point for the team's work rather than a reference tool, some of what it does changes state in other systems. We would rather set this out ourselves, with the controls we propose, than have it emerge in review.</p>
+
+  <div class="note alert">
+    <p><span class="label">Two capabilities that change state</span><strong>Database operations — in use today.</strong> Kortex calls our existing database administration application through a dedicated service account. Which users may do what is decided inside Kortex: an administrator grants read and/or write privilege, per database.</p>
+    <p><strong>Remediation on servers — planned, not built.</strong> For repetitive vulnerability cases whose fix is well understood, the intent is that Kortex prepares and applies the remediation rather than only reporting it. This requires access to the servers concerned.</p>
+  </div>
+
+  <p>These are a categorical step beyond retrieval, and they attract the governance weight of the initiative. The risks are well understood — most map to the OWASP Top 10 for LLM Applications — and each has a strategy we intend to build to.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Risk</th><th>Why it applies here</th><th>Our strategy</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="k">Prompt injection reaching an action</td>
+          <td>Retrieved document content enters the model's context and influences what it does. With an action capability attached, a document carrying instructions — planted, or simply inherited from a vendor PDF — could in principle steer an operation.</td>
+          <td>No path from retrieved content to a state change without a person in between. Retrieved material is structurally separated from instruction in the prompt. Documents are reviewed before ingestion (below), so the corpus is a controlled input rather than an open one.</td>
+        </tr>
+        <tr>
+          <td class="k">Excessive agency</td>
+          <td>An agent granted broad capability can take actions wider than the request warranted, and a language model's choice of action is not deterministic.</td>
+          <td>Read and write are separate capabilities with separate grants. Every state change requires explicit human confirmation showing the exact operation before it runs, with a preview where the downstream interface supports one. Server remediation is limited to a closed, named list of case types — never "cases that look similar."</td>
+        </tr>
+        <tr>
+          <td class="k">Attribution</td>
+          <td>Downstream systems see the Kortex service account rather than the person who asked, so their logs alone cannot answer "who did this?"</td>
+          <td>Kortex passes the requesting user's identity on every downstream call, and the database administration application records it alongside the service account. Kortex additionally keeps its own trail: who asked, what was proposed, who approved, what ran, what returned. Attribution end to end.</td>
+        </tr>
+        <tr>
+          <td class="k">Privilege escalation into Kortex</td>
+          <td>Holding a privileged downstream credential makes Kortex itself a target. Any authentication or authorisation weakness in it now carries the severity of what it can reach.</td>
+          <td>The authentication and authorisation hardening in Section 8 is treated as a prerequisite for the action capabilities, not as general improvement, and is sequenced first.</td>
+        </tr>
+        <tr>
+          <td class="k">Blast radius</td>
+          <td>An automated remediation applied at speed can be applied at scale, and an incorrect one propagates faster than a human would.</td>
+          <td>One target at a time, rate-limited, never fleet-wide. Every action reversible, with the rollback prepared before execution. Credentials scoped to exactly the permitted remediations rather than general administrative rights.</td>
+        </tr>
+        <tr>
+          <td class="k">Misinformation acted upon</td>
+          <td>A vulnerability verdict or a proposed fix produced by a model could be wrong, and wrong in a way that reads as confident.</td>
+          <td>No verdict counts as an assessment of record without named human confirmation. Answers cite their sources so the underlying material can be checked rather than trusted.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Quality control on what enters the corpus</h3>
+
+  <p>Because everything Kortex asserts is grounded in the corpus, what goes into it matters as much as who can query it. <strong>Ingested documents pass through administrator review before they are indexed.</strong> That review is the control point for three things at once: whether the document is accurate enough to ground answers, whether it carries client or personal data that should not be present, and whether it contains anything that should not be treated as instruction. Upload already requires a specific privilege, and content is deduplicated by hash so the same document cannot be indexed twice.</p>
+
+  <h3>Accountability for what the system asserts</h3>
+  <p>The CVE agent produces an impacted / not-impacted verdict. We propose that <strong>no such verdict counts as an assessment of record without named human confirmation</strong>, with that confirmation recorded. We also need to establish whether any output of this pipeline could reach client-facing communications — KTP Suite is software sold to financial institutions, and product vulnerability statements have a way of travelling. If such a path exists, the controls around it should be set by the CoE and not by us.</p>
+
+  <h3>Regulatory questions we need confirmed</h3>
+  <p>We are flagging these as questions rather than asserting answers.</p>
+  <ul>
+    <li>Whether this must be registered in a Finastra AI system inventory, and under what classification.</li>
+    <li>Its classification under the EU AI Act. We would expect an internal productivity assistant to sit well below the high-risk threshold, carrying transparency obligations toward its users rather than the high-risk regime — but that is an expectation, not a determination.</li>
+    <li>Whether a data protection impact assessment is required, given that user-typed questions may incidentally contain personal data even though the corpus does not.</li>
+    <li>Whether ICT third-party risk obligations arising from Finastra's position as a supplier to financial institutions extend to a model provider used in internal tooling.</li>
+    <li>What, if anything, must be disclosed to clients about AI use in the processes that support their products.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="s8">
+  <h2><span class="num">08</span>Security, compliance and governance</h2>
+
+  <p>The platform has been developed against the OWASP Top 10 and the team maintains its own control assessment. Below is what is designed and working today, and what must change before anyone outside the pilot team uses it.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Area</th><th>Development stage today</th><th>Required before wider use</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="k">Authentication</td>
+          <td>Corporate OIDC; every API route requires a valid token validated against the provider's signing keys.</td>
+          <td>Move from the identity token to a properly scoped API access token, and add refresh handling.</td>
+        </tr>
+        <tr>
+          <td class="k">Authorisation</td>
+          <td>Five roles mapped to three modules, deny-by-default, enforced server-side. Working.</td>
+          <td>Add retrieval-time entitlement filtering (Section 7).</td>
+        </tr>
+        <tr>
+          <td class="k">Transport security</td>
+          <td><span class="chip c-gap">Development exception</span> Certificate verification is disabled on outbound model calls to work around the corporate proxy's TLS interception.</td>
+          <td>Mount the corporate CA bundle and restore verification. Single change, closes every affected call site.</td>
+        </tr>
+        <tr>
+          <td class="k">Secrets</td>
+          <td>Encrypted at rest with SOPS and age; plaintext never committed.</td>
+          <td>Move to a managed secret store; remove build-time secrets from container images.</td>
+        </tr>
+        <tr>
+          <td class="k">Application hardening</td>
+          <td>Security headers on every response, restricted CORS, input sanitisation, rate limiting, non-root containers, API documentation disabled.</td>
+          <td>Make rate limiting per-user rather than per-source-address; validate upload paths; allowlist selectable models.</td>
+        </tr>
+        <tr>
+          <td class="k">Audit and observability</td>
+          <td>Structured logging including provisioning and access-request events; metrics; full model-call tracing.</td>
+          <td>Set the trace retention policy (D-4); add an audit record for confirmed CVE verdicts.</td>
+        </tr>
+        <tr>
+          <td class="k">Testing and assurance</td>
+          <td><span class="chip c-gap">None</span> No automated test suite and no CI security gates.</td>
+          <td>Test the controls we claim, and gate the pipeline on linting, dependency and secret scanning.</td>
+        </tr>
+        <tr>
+          <td class="k">Supply chain</td>
+          <td><span class="chip c-part">Partial</span> Our own assessment marks this incomplete.</td>
+          <td>Dependency scanning, software bill of materials, image signing.</td>
+        </tr>
+        <tr>
+          <td class="k">Answer quality</td>
+          <td><span class="chip c-gap">Unmeasured</span> Nothing evaluates whether answers are correct or properly grounded.</td>
+          <td>Groundedness and citation scoring, plus a fixed retrieval regression set.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p><span class="label">On the development exception</span>Disabling certificate verification was a deliberate shortcut to get past corporate proxy interception during early development, and the correct fix is recorded alongside it in the code. We are naming it here rather than leaving it to be found: it must not survive into anything users depend on, and it is the first item in the hardening work.</p>
+  </div>
+
+  <p>The full engineering task list behind this table — every item, with file references and sequencing — is maintained alongside the codebase and can be provided to the CoE or to a security reviewer on request.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="s9">
+  <h2><span class="num">09</span>Roadmap and next steps</h2>
+
+  <p>Development has run through three architectural iterations, each addressing a limitation of the previous one, and is now paused.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Stage</th><th>Change</th><th>Why</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="id">v1.0</td><td class="k">Retrieval-augmented assistant</td><td>Baseline: always retrieve, then answer. Simple, but it searched the corpus even for greetings and could not reach outside it.</td><td class="tight"><span class="chip c-ok">Working</span></td></tr>
+        <tr><td class="id">v1.1</td><td class="k">Relevance grading and fallback</td><td>The model decides whether to retrieve, grades what comes back, and falls back to web search when internal documents are insufficient.</td><td class="tight"><span class="chip c-ok">Working</span></td></tr>
+        <tr><td class="id">v1.2</td><td class="k">Multi-agent orchestration</td><td>One retrieval pipeline could not serve CVE assessment and database operations. Intent classification now routes to specialised agents.</td><td class="tight"><span class="chip c-part">Not validated</span></td></tr>
+        <tr><td class="id">—</td><td class="k">Model provider</td><td>Restore a sanctioned inference and embedding service. Nothing proceeds until this clears — and model selection, which was working, stays dormant until it does.</td><td class="tight"><span class="chip c-gap">Blocked — D-1</span></td></tr>
+        <tr><td class="id">—</td><td class="k">Design decisions</td><td>Settle retrieval-time entitlements, the token model, the human gate on CVE verdicts, trace retention and the corpus classification policy — all cheaper to design in than to retrofit.</td><td class="tight"><span class="chip c-plan">Next</span></td></tr>
+        <tr><td class="id">—</td><td class="k">Hardening</td><td>Restore certificate verification, per-user rate limiting, upload validation, secret handling in images, and the remaining fixes.</td><td class="tight"><span class="chip c-plan">Then</span></td></tr>
+        <tr><td class="id">—</td><td class="k">Evidence</td><td>Test the controls we claim; add CI gates; measure answer quality; establish the four-week benefit baseline.</td><td class="tight"><span class="chip c-plan">Gate</span></td></tr>
+        <tr><td class="id">—</td><td class="k">Operational readiness</td><td>Named ownership, support model, runbook, managed runtime, backup and restore.</td><td class="tight"><span class="chip c-plan">Gate</span></td></tr>
+        <tr><td class="id">v2.0</td><td class="k">Supported internal service</td><td>Rollout beyond the pilot team.</td><td class="tight"><span class="chip c-plan">Subject to approval</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p><span class="label">Proposed gate</span>We propose that the evidence and operational-readiness rows are treated as prerequisites rather than parallel work, and that Kortex is not opened beyond the pilot team until both are cleared. We would rather the CoE confirm or adjust that gate than set it ourselves.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="s10">
+  <h2><span class="num">10</span>Decisions requested from the CoE</h2>
+
+  <p>Seven decisions, in the order they block us.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Ref</th><th>Decision</th><th>What it unblocks</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="id">D-1</td><td class="k">Name a sanctioned model service for chat inference and embeddings, and indicate how the running cost should be carried.</td><td>All development. This is the immediate blocker. If Finastra has already assessed a provider, adopting it is a configuration change for us — but unlike the retired service it replaces, it will carry a recurring cost that needs an owner.</td></tr>
+        <tr><td class="id">D-2</td><td class="k">Confirm the data-protection position in Section 7 — the corpus classification, the exclusion of client data, and the acceptability of sending retrieved extracts to the model provider.</td><td>The architecture. If the classification is stricter than we assume, the self-hosted model option changes the design and the cost.</td></tr>
+        <tr><td class="id">D-3</td><td class="k">Tell us whether this duplicates an existing Finastra capability.</td><td>Whether we build UC-01 at all. Documentation Q&amp;A may well be served by something that already exists; the CVE assessment and product-inventory matching are more specific to us.</td></tr>
+        <tr><td class="id">D-4</td><td class="k">Rule on retention of prompts, responses and traces, and on user offboarding.</td><td>Observability configuration and the privacy position.</td></tr>
+        <tr><td class="id">D-5</td><td class="k">Confirm registration, AI Act classification and whether a DPIA or third-party risk assessment is required.</td><td>Compliance sequencing — these may carry lead times we should start now rather than later.</td></tr>
+        <tr><td class="id">D-6</td><td class="k">Confirm or adjust the readiness gate in Section 9.</td><td>An agreed definition of done for going beyond the pilot team.</td></tr>
+        <tr><td class="id">D-7</td><td class="k">Rule on the database write capability in Section 7 — and on whether phasing it behind a read-only first release is the right approach.</td><td>The most consequential capability in the initiative. We would rather build to conditions the CoE sets than propose our own and be corrected later.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p><span class="label">Our recommendation</span>Endorse the initiative in principle and resolve D-1 so development can resume; treat D-2 as the design-defining decision; and confirm the readiness gate so we build to a known standard rather than discovering it at the end.</p>
+    <p>We would also ask that the lower-risk layers — the instruction profiles, the integration samples, and the skills that handle no client data — be assessed on their own terms, so they are not held behind the decisions above.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="s11">
+  <h2><span class="num">A</span>Appendix — programme and delivery register</h2>
+
+  <h3>How the pieces fit together</h3>
+  <p>The initiative is organised in layers rather than separate projects. The platform is the entry point; skills are self-contained integrations that its agents call; instruction profiles and samples support the way the team works with all of it.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Layer</th><th>Contents</th><th>Client data</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Kortex platform</td><td>The application described in this paper — back end, front end, ingestion pipeline, infrastructure, orchestrator and agents.</td><td class="tight"><span class="chip c-ok">Corpus: none</span></td></tr>
+        <tr><td class="k">Agents and skills</td><td>The specialised agents and the integrations behind them. Several began as standalone skills and are being converted into agents — see the register below.</td><td class="tight"><span class="chip c-gap">Case agents: yes</span></td></tr>
+        <tr><td class="k">Instruction profiles</td><td>Curated instruction sets, agents and reusable prompts per role — AI, content, developer, DevOps and management.</td><td class="tight"><span class="chip c-ok">None</span></td></tr>
+        <tr><td class="k">Integration samples</td><td>Reference implementations for calling a model endpoint from Python and from Java.</td><td class="tight"><span class="chip c-ok">None</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The classification is therefore not uniform across the initiative. The platform and its documentation corpus hold no client data; the database operations capability reaches anonymised client data in test environments; and the case-oriented skills handle client-identifying content directly. Section 7 sets out the position for each.</p>
+
+  <h3>Agent register</h3>
+
+  <p>Eight agents, two of them working today. Several exist as standalone skills built during the proof of concept and are being converted into agents so the orchestrator can route to them directly. The right-hand column is the one that matters for Section 7.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Agent</th><th>What it does</th><th>Status</th><th>Touches client data</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="k">Search</td>
+          <td>Retrieval over the documentation corpus, with relevance grading and a web fallback when internal documents fall short.</td>
+          <td class="tight"><span class="chip c-ok">Working</span></td>
+          <td class="tight">No</td>
+        </tr>
+        <tr>
+          <td class="k">DBAdmin</td>
+          <td>Database questions and operations through our database administration application. <strong>Reads and writes.</strong></td>
+          <td class="tight"><span class="chip c-ok">Working</span></td>
+          <td class="tight">Anonymised, in test databases</td>
+        </tr>
+        <tr>
+          <td class="k">CVE</td>
+          <td>Correlates an incoming vulnerability report with our own investigation and resolution history.</td>
+          <td class="tight"><span class="chip c-plan">Planned</span></td>
+          <td class="tight">No</td>
+        </tr>
+        <tr>
+          <td class="k">Salesforce</td>
+          <td>Case details and attachments, with assisted root-cause analysis.</td>
+          <td class="tight"><span class="chip c-part">Skill → agent</span></td>
+          <td class="tight"><span class="chip c-gap">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="k">Jira</td>
+          <td>Issue details, linked commits, JQL search, and assisted commit analysis.</td>
+          <td class="tight"><span class="chip c-part">Skill → agent</span></td>
+          <td class="tight">Incidental</td>
+        </tr>
+        <tr>
+          <td class="k">ServiceNow</td>
+          <td>Incidents, changes, requested items and problems.</td>
+          <td class="tight"><span class="chip c-part">Skill → agent</span></td>
+          <td class="tight"><span class="chip c-gap">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="k">Infrastructure</td>
+          <td>Parses vCloud exports, spreadsheets and mail into resource reports, and flags servers that appear in the estate but not in our records.</td>
+          <td class="tight"><span class="chip c-part">Skill → agent</span></td>
+          <td class="tight">No</td>
+        </tr>
+        <tr>
+          <td class="k">Reports</td>
+          <td>Renders branded Finastra output — HTML, Word and PDF — from whatever another agent has produced.</td>
+          <td class="tight"><span class="chip c-part">Skill → agent</span></td>
+          <td class="tight">Inherits its input</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Case 360°</strong> sits above several of these rather than beside them: it assembles a Salesforce case together with its related ServiceNow, Jira and Office 365 context into one view. It is therefore the point at which the most client-identifying material converges, and the controls in Section 7 apply to it most sharply.</p>
+
+  <p>Two observations worth drawing out of this table. <strong>Four of the eight reach systems holding client-identifying content</strong>, which is why Section 7 treats retrieval entitlements as a design decision rather than a later refinement — an agent reading with a broad service account would let a user see cases they could not open directly. And the <strong>Reports agent inherits the classification of whatever it renders</strong>: a branded PDF assembled from case data carries that data out of the platform in a file, so its output needs the same handling as its input.</p>
+
+  <h3>Specified user stories</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Ref</th><th>Story</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td class="id">K0001</td><td class="k">Internationalisation</td><td>French and English interface with persisted preference; the assistant replies in the user's language.</td></tr>
+        <tr><td class="id">K0002</td><td class="k">Orchestrator agent</td><td>Single entry point that classifies intent and routes to the Search, CVE and DBAdmin agents.</td></tr>
+        <tr><td class="id">K0003</td><td class="k">Agent interaction UI</td><td>Surfaces the agent hierarchy and tool calls in the chat interface.</td></tr>
+        <tr><td class="id">K0004</td><td class="k">Multi-model support</td><td>Model selection with an interface adapting to reasoning and tool-calling capability. <strong>Delivered and working</strong> against the previous provider; dormant until D-1 supplies a catalogue. The vision half was never built.</td></tr>
+        <tr><td class="id">K0005</td><td class="k">Roles and permissions</td><td>Five roles, three modules, deny-by-default provisioning, self-service access requests, admin management screens.</td></tr>
+        <tr><td class="id">K0006</td><td class="k">Ingestion management UI</td><td>Document inventory, extract drill-down, upload with live progress, deduplication and deletion.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="end">
+  <p class="colophon">Kortex AI Initiative · KTP DevOps, Finastra · Pre-build submission to the AI Centre of Excellence · 27 August 2026<br>
+  Presented at early development stage. Nothing described here is in production or in use beyond the project team.</p>
+</section>
+
+</div>

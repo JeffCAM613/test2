@@ -62,7 +62,7 @@ outside the pilot uses it.
 | Product family — CTI, KTP, FFC, Payment Factory, KTPWeb, Cargo | 🟢 From our orchestrator prompt |
 | "Entry point for daily work, not a Q&A assistant" | 🟢 Our own framing, this week |
 | Early development stage; GitHub Models retired | 🟢 Fact |
-| The four figures (7 use cases, 3 agents, 2 state-changing capabilities, 1 content egress) | 🟡 Counted from our own material |
+| The four figures (7 use cases, 8 agents, 2 state-changing capabilities, 1 content egress) | 🟡 Counted from our own material |
 | "Three reasons we're presenting now" — ask before building, avoid duplicate effort, standards designed in | 🔴 **ADDED.** Written to mirror the CoE's own charter language back at them. |
 | "We are not asking for production approval" | 🔴 **ADDED.** A deliberate strategy — see Decide. |
 
@@ -79,10 +79,18 @@ outside the pilot uses it.
 
 ## Section 2 — Objectives and business value
 
-**Say this.** Four objectives. Cutting the search that precedes the fix — the days of
-looking before the minutes of fixing. Reusing what we already know about vulnerabilities.
-Connecting AI to the systems we already use. And building AI development skills in the team.
+**Say this.** Four objectives, and they divide by the kind of question being asked.
+**One** — product knowledge: how does this work, for the version I'm actually running.
+**Two** — resolution: something is broken, get me from symptom to fix, covering both
+application errors and vulnerabilities. **Three** — one place to start the day, across Jira,
+Salesforce, ServiceNow and the databases. **Four** — build AI development skills in the team.
 Pilot population is DevOps and Client Services.
+
+> **Note on the restructure.** An earlier draft split these differently and the first two
+> objectives overlapped — both were essentially "finding things is slow." The current split
+> is by *question type*: **"how does this work?"** versus **"this is broken."** Users
+> recognise that division because it is how they experience the work, and it lets Objective 2
+> cover troubleshooting and CVEs together rather than treating vulnerabilities as special.
 
 **Provenance**
 
@@ -90,12 +98,28 @@ Pilot population is DevOps and Client Services.
 |---|---|
 | The four audience profiles — Support / Consultants and PMs / DevOps and SRE / Management | 🟢 **Verbatim from our own agent prompt.** We wrote this; it was just never surfaced. |
 | Pilot = DevOps and Client Services | 🟢 Ours |
-| Objective 1 — days of exploration before minutes of fixing | 🟢 Your example. 🟡 in wording only. |
-| Objective 2 — vulnerability knowledge reuse | 🟢 Your description of how the process actually works |
-| Objective 3 — connect to Salesforce, ServiceNow, Jira, O365 | 🟢 Near-verbatim from our root README |
+| Objective 1 — SME dependency, 24/7 availability, version-aware answers | 🟢 Ours |
+| Objective 1 — onboarding benefit, and answers being auditable | 🔴 **ADDED.** Both are real and neither had been articulated. |
+| Objective 2 — days of exploration before minutes of fixing | 🟢 Your example. 🟡 in wording only. |
+| Objective 2 — vulnerability process and knowledge reuse | 🟢 Your description of how it actually works |
+| Objective 3 — one place to start the day | 🟡 **Reframed.** Previously "connect AI to the systems we use," which described plumbing as though it were a benefit. Nobody wants an integration; they want to not check five tools before starting. |
 | Objective 4 — build AI development skills | 🟡 **Reframed.** Our README says *"Learn and demonstrate the LangChain framework end-to-end."* Generalised to skills and optionality, because the original reads in a review room as "we wanted to learn a library." |
 | "We have no measured baseline and won't quote estimates as evidence" | 🔴 **ADDED** |
 | The four-week baseline proposal | 🔴 **ADDED** |
+
+> ### ⚠️ One claim to be careful with
+>
+> The document says documentation is **"uploaded as it is published, and on each release"** —
+> an operational commitment we control. It deliberately does **not** say the corpus is
+> "always up to date," because that is a property of the system and we cannot currently
+> guarantee it.
+>
+> The gap: documents are deduplicated by content hash, which stops the *same* file being
+> ingested twice, but nothing removes a **superseded revision**. Keeping older *versions* is
+> correct and deliberate — colleagues on 23.2 need 23.2's answer. The problem is a *corrected*
+> document: publish a fix to the 24.1 guide, ingest it, and both the old and new copies now
+> sit in the corpus, either of which retrieval may surface. Since version-correct answers are
+> the strongest thing we claim, this needs closing. It is on the engineering list.
 
 > ⚠️ **Flag this one explicitly to the team.** An earlier draft claimed CVE assessment was
 > "a manual cross-reference between the advisory and the library inventory." That was wrong —
@@ -137,6 +161,18 @@ integrations our agents call. Statuses are honest: two working, one planned, fou
 > are the integration layer our agents call. That correction matters because it means
 > Salesforce and ServiceNow content flows *through Kortex*, which is exactly why Section 7
 > reads the way it does now.
+
+> ### The agent count grew
+>
+> The paper now describes **eight agents, two of them working**. Five of the six planned ones
+> already exist as skills built during the proof of concept — Salesforce, Jira, ServiceNow,
+> Infrastructure and Reports — and are being converted so the orchestrator can route to them
+> directly. There is a full register in the appendix with a client-data column.
+>
+> Two facts in that register will draw questions, so know them going in: **four of the eight
+> reach systems holding client-identifying content**, and the **Reports agent inherits the
+> classification of whatever it renders** — a branded PDF built from case data carries that
+> data out of the platform as a file.
 
 **Decide**
 
@@ -188,6 +224,18 @@ sign-in, model inference, and CVE lookups. Plus search terms indirectly.
 | Tiers, request path, agent structure | 🟢 From our architecture docs and code |
 | **The trust-boundary framing** | 🔴 **ADDED.** Our own docs have a "Security Model" table but never analyse data egress. This is the single most useful reframing in the paper for this audience. |
 | Search egress detail — five engines, corporate proxy, no vendor account | 🟢 Ours |
+
+> ### On the architecture diagram
+>
+> It now shows **three zones**, not one boundary, and the distinction is worth spelling out
+> in the room. The agents reach outward into **Finastra's own systems** — Salesforce,
+> ServiceNow, Jira, Office 365 — but that is not disclosure: the data is ours before Kortex
+> touches it, and reading it reveals nothing to anyone new. Disclosure happens only in the
+> third zone, and that list is short — the model provider, the public vulnerability
+> database, and the search engines.
+>
+> Being able to say *"most of what looks like egress isn't"* is a strong position, and it
+> only reads that way if the diagram separates the two.
 
 **Decide**
 
