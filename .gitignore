@@ -1,0 +1,14 @@
+# Deny by default. This repository holds only the AI CoE submission deliverables.
+#
+# Everything else in this working folder stays local — in particular:
+#   TODO.md              engineering task list with specific vulnerability details
+#   COE-OPEN-POINTS.md   open points tracker, same
+#   dump*.docx           source code dumps
+#   ktp-devops-ai-*/     extracted application source
+#   *.html               working copy of the brief
+*
+
+# Explicitly published
+!.gitignore
+!Kortex-AI-Initiative.docx
+!PRESENTATION-SCRIPT.md
